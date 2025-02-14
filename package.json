@@ -1,0 +1,16 @@
+{
+  "name": "go_ai",
+  "version": "1.0.0",
+  "main": "script.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "devDependencies": {
+    "eslint": "^9.20.1",
+    "prettier": "^3.5.1"
+  }
+}

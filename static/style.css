@@ -1,0 +1,10 @@
+嗯，还没有呢，我先不着急呢。#game-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 20px;
+}
+
+#go-board {
+    border: 1px solid black;
+}

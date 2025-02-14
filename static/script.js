@@ -1,14 +1,16 @@
 const canvas = document.getElementById('go-board');
 const ctx = canvas.getContext('2d');
 const gridSize = 19;
-// 修改 cellSize 的计算方式：使用 (gridSize + 1) 作为除数，让棋盘边缘留出空隙
 const cellSize = canvas.width / (gridSize + 1);
 const pieceRadius = cellSize * 0.4;
-const boardMargin = cellSize; // 使用 cellSize 作为边距，保持线条与棋盘边缘有一定距离
+const boardMargin = cellSize;
 
 let boardState = Array(gridSize).fill(null).map(() => Array(gridSize).fill(null));
-let currentPlayer = 'black'; // 用户执黑棋先手
+let currentPlayer = 'black';
 let lastCapturedPosition = null;
+
+const blackCoordsInput = document.getElementById('black-coords');
+const whiteCoordsInput = document.getElementById('white-coords');
 
 // 新增：记录历史棋盘状态，用于劫争规则
 let boardHistory = [];
@@ -398,11 +400,108 @@ function userClickHandler(event) {
         const row = boardPos.row;
         const col = boardPos.col;
         handleUserMove(row, col); // 调用 async 的事件处理函数
+        blackCoordsInput.value = `${row + 1},${col + 1}`;
     }
 }
 
 // 绑定事件处理器
 canvas.addEventListener('click', userClickHandler);
+
+whiteCoordsInput.addEventListener('change', function() {
+    const coords = whiteCoordsInput.value.split(',').map(Number);
+    if (coords.length === 2 && !isNaN(coords[0]) && !isNaN(coords[1])) {
+        const row = coords[0] - 1; // Convert to 0-based index
+        const col = coords[1] - 1; // Convert to 0-based index
+        handleWhiteMove(row, col);
+    } else {
+        alert('Invalid coordinates. Please enter coordinates in the format "row,col" (e.g., "1,1").');
+        whiteCoordsInput.value = ''; // Clear invalid input
+    }
+});
+
+async function handleWhiteMove(row, col) {
+    if (isProcessingMove) {
+        return;
+    }
+
+    if (row < 0 || row >= gridSize || col < 0 || col >= gridSize) {
+        alert('Coordinates out of range.');
+        return;
+    }
+
+    if (boardState[row][col] === null) {
+        if (
+            lastCapturedPosition &&
+            row === lastCapturedPosition.row &&
+            col === lastCapturedPosition.col
+        ) {
+            alert(
+                '劫! 根据围棋规则，您不能立即反提，必须先在棋盘其他地方落一子（应劫）才可以再次提劫。'
+            );
+            return;
+        }
+
+        isProcessingMove = true;
+
+        boardState[row][col] = 'white'; // White player's turn
+        drawPiece(row, col, 'white');
+
+        const captureResult = capturePieces(row, col, 'white');
+        const capturedCount = captureResult.capturedCount;
+        const capturedKoPosition = captureResult.capturedKoPosition;
+
+        const visitedForOwnGroup = Array(gridSize)
+            .fill(null)
+            .map(() => Array(gridSize).fill(false));
+        const ownGroup = getGroup(row, col, 'white', visitedForOwnGroup);
+        const ownLiberties = calculateGroupLiberties(ownGroup);
+
+        if (ownLiberties === 0 && capturedCount === 0) {
+            boardState[row][col] = null;
+            alert(
+                '自杀! 您的落子没有气且没有捕获任何对方棋子。'
+            );
+            isProcessingMove = false;
+            return;
+        }
+
+        const currentState = JSON.stringify(boardState);
+        if (boardHistory.includes(currentState)) {
+            boardState[row][col] = null;
+            alert(
+                '非法落子！该位置导致棋盘状态重复（违反劫争规则）。'
+            );
+            isProcessingMove = false;
+            return;
+        }
+        boardHistory.push(currentState);
+
+
+        drawBoard();
+        for (let r = 0; r < gridSize; r++) {
+            for (let c = 0; c < gridSize; c++) {
+                if (boardState[r][c]) {
+                    drawPiece(r, c, boardState[r][c]);
+                }
+            }
+        }
+
+        if (capturedCount > 0 && capturedKoPosition) {
+            lastCapturedPosition = capturedKoPosition;
+        } else {
+            lastCapturedPosition = null;
+        }
+
+        currentPlayer = 'black'; // Switch back to black player
+        whiteCoordsInput.value = ''; // Clear input after valid move
+        isProcessingMove = false;
+
+    } else {
+        alert('该位置已经有棋子，请选择其他位置落子!');
+        whiteCoordsInput.value = ''; // Clear invalid input
+    }
+}
+
 
 // 初始绘制棋盘
 drawBoard();

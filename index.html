@@ -6,13 +6,20 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <canvas id="goBoard" width="500" height="500"></canvas>
-    <div id="coordinates"></div>
+    <div class="main-container">
+        <canvas id="goBoard" width="500" height="500"></canvas>
+        <div id="moveHistory">
+            <h3>落子记录</h3>
+            <ul id="historyList"></ul>
+            <button id="revertButton" disabled>回溯</button>
+        </div>
+    </div>
     <div id="inputArea">
         <label for="moveInput">白棋落子坐标:</label>
         <input type="text" id="moveInput" name="moveInput">
         <button id="submitMove">落子</button>
     </div>
-    <script src="script.js"></script>
+    <div id="coordinates"></div>
+     <script src="script.js"></script>
 </body>
 </html>

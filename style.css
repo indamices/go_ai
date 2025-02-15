@@ -5,14 +5,61 @@ body {
     align-items: center;
 }
 
+.main-container {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: flex-start;
+    margin-bottom: 20px;
+}
+
 #goBoard {
     border: 1px solid black;
 }
 
 #coordinates {
     margin-top: 10px;
+    text-align: center;
+    order: 3; /* 调整 coordinates 的 order */
 }
 
 #inputArea {
     margin-top: 20px;
+    text-align: center;
+    order: 2; /* 调整 inputArea 的 order */
+}
+
+#moveInput {
+    margin-left: 10px;
+}
+
+#moveHistory {
+    margin-left: 20px;
+    border: 1px solid #ccc;
+    padding: 10px;
+    width: 200px;
+    height: 400px;
+    overflow-y: auto;
+    align-self: flex-start;
+}
+
+#historyList {
+    list-style-type: none;
+    padding: 0;
+}
+
+#historyList li {
+    padding: 5px 0;
+    cursor: pointer;
+}
+
+#historyList li:hover {
+    background-color: #f0f0f0;
+}
+
+#revertButton {
+    margin-top: 10px;
+    padding: 5px 10px;
+    cursor: pointer;
+    order: 4; /* 调整 revertButton 的 order */
 }
